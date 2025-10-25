@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ClockIcon } from '../icons/ClockIcon';
 
-const TRIAL_DURATION_MS = 12 * 60 * 60 * 1000; // 12 hours
+const TRIAL_DURATION_MS = 1 * 60 * 60 * 1000; // 1 hour
 const TRIAL_START_TIME_KEY = 'trialStartTime';
 
 const TrialExpiredOverlay: React.FC = () => {
