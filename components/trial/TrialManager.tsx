@@ -86,7 +86,7 @@ const TrialExpiredOverlay: React.FC = () => {
                 ) : (
                     <>
                         <p className="text-gray-300">
-                            للحصول على النسخة الكاملة والاستمرار في استخدام النظام، يرجى ترك معلومات التواصل الخاصة بك وسنتصل بك.
+                            للحصول على النسخة الكاملة والاستمرار في استخدام النظام، يرجى ترك معلومات التواصل الخاصة بك وسيتم التواصل معك عن طريق فريق عمل عمرو غباشي
                         </p>
                         <form onSubmit={handleSubmit} className="mt-8 w-full max-w-sm">
                             <div className="flex flex-col sm:flex-row gap-2">
@@ -117,8 +117,9 @@ const TrialExpiredOverlay: React.FC = () => {
 };
 
 const TrialCountdownBanner: React.FC<{ timeString: string }> = ({ timeString }) => {
-    const remainingSeconds = timeString.split(':').reduce((acc, time) => (60 * acc) + +time, 0);
-    const isWarning = remainingSeconds <= 10 * 60; // Under 10 minutes
+    // A simple calculation to turn red in the last minute
+    const remainingSeconds = parseInt(timeString.split(':')[0], 10) * 60 + parseInt(timeString.split(':')[1], 10);
+    const isWarning = remainingSeconds <= 60;
 
     return (
         <div
@@ -131,61 +132,64 @@ const TrialCountdownBanner: React.FC<{ timeString: string }> = ({ timeString }) 
     );
 };
 
-
 export const TrialWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const [isTrialExpired, setTrialExpired] = useState(false);
-    const [timeLeftString, setTimeLeftString] = useState('');
+    const [isDevMode, setIsDevMode] = useState(false);
+    const [remainingTime, setRemainingTime] = useState(TRIAL_DURATION_MS);
+    const [isExpired, setIsExpired] = useState(false);
 
     useEffect(() => {
-        document.body.style.paddingTop = '32px';
-
-        let startTimeStr = localStorage.getItem(TRIAL_START_TIME_KEY);
-        let startTime: number;
-
-        if (startTimeStr) {
-            startTime = parseInt(startTimeStr, 10);
-        } else {
-            startTime = Date.now();
-            localStorage.setItem(TRIAL_START_TIME_KEY, startTime.toString());
+        // Check for dev mode flag in URL
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('dev') === 'true') {
+            setIsDevMode(true);
+            console.log("Developer mode enabled, trial period bypassed.");
+            return; // Exit effect if in dev mode
         }
 
-        const intervalId = setInterval(() => {
-            const elapsedTime = Date.now() - startTime;
-            if (elapsedTime >= TRIAL_DURATION_MS) {
-                setTrialExpired(true);
-                setTimeLeftString('00:00:00');
-                document.body.style.paddingTop = '0px';
-                clearInterval(intervalId);
+        // Standard trial logic
+        let startTime = localStorage.getItem(TRIAL_START_TIME_KEY);
+        if (!startTime) {
+            startTime = Date.now().toString();
+            localStorage.setItem(TRIAL_START_TIME_KEY, startTime);
+        }
+
+        const interval = setInterval(() => {
+            const elapsed = Date.now() - parseInt(startTime!, 10);
+            const left = TRIAL_DURATION_MS - elapsed;
+            if (left <= 0) {
+                setRemainingTime(0);
+                setIsExpired(true);
+                clearInterval(interval);
             } else {
-                const remainingMs = TRIAL_DURATION_MS - elapsedTime;
-                const hours = Math.floor((remainingMs / (1000 * 60 * 60)) % 24).toString().padStart(2, '0');
-                const minutes = Math.floor((remainingMs / (1000 * 60)) % 60).toString().padStart(2, '0');
-                const seconds = Math.floor((remainingMs / 1000) % 60).toString().padStart(2, '0');
-                setTimeLeftString(`${hours}:${minutes}:${seconds}`);
+                setRemainingTime(left);
             }
         }, 1000);
 
-        return () => {
-            clearInterval(intervalId);
-            document.body.style.paddingTop = '0px';
-        };
+        return () => clearInterval(interval);
     }, []);
 
-    if (isTrialExpired) {
-        return (
-            <>
-                <TrialExpiredOverlay />
-                <div style={{ filter: 'blur(8px)', pointerEvents: 'none', height: '100vh', overflow: 'hidden' }}>
-                    {children}
-                </div>
-            </>
-        );
+    const formatTime = (ms: number) => {
+        const totalSeconds = Math.floor(ms / 1000);
+        const minutes = Math.floor(totalSeconds / 60);
+        const seconds = totalSeconds % 60;
+        return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+    };
+    
+    // If in dev mode, bypass all trial logic and render the app directly.
+    if (isDevMode) {
+        return <>{children}</>;
+    }
+    
+    if (isExpired) {
+        return <TrialExpiredOverlay />;
     }
 
     return (
         <>
-            {timeLeftString && <TrialCountdownBanner timeString={timeLeftString} />}
-            {children}
+            <TrialCountdownBanner timeString={formatTime(remainingTime)} />
+            <div style={{ paddingTop: '2rem' }}> {/* Offset for the banner */}
+                {children}
+            </div>
         </>
     );
 };
