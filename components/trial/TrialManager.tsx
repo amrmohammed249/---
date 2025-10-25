@@ -23,7 +23,7 @@ const EMAILJS_PUBLIC_KEY = 'y3KlI1WQ2xWNsnB4E';
 // This makes the emailjs variable globally available to TypeScript
 declare var emailjs: any;
 
-const TRIAL_DURATION_MS = 5 * 60 * 1000; // 5 minutes
+const TRIAL_DURATION_MS = 48 * 60 * 60 * 1000; // 48 hours
 const TRIAL_START_TIME_KEY = 'trialStartTime';
 
 const TrialExpiredOverlay: React.FC = () => {
@@ -117,9 +117,9 @@ const TrialExpiredOverlay: React.FC = () => {
 };
 
 const TrialCountdownBanner: React.FC<{ timeString: string }> = ({ timeString }) => {
-    // A simple calculation to turn red in the last minute
-    const remainingSeconds = parseInt(timeString.split(':')[0], 10) * 60 + parseInt(timeString.split(':')[1], 10);
-    const isWarning = remainingSeconds <= 60;
+    // A simple calculation to turn red in the last 5 minutes
+    const timeParts = timeString.split(':');
+    const isWarning = timeParts.length === 3 && parseInt(timeParts[0], 10) === 0 && parseInt(timeParts[1], 10) < 5;
 
     return (
         <div
@@ -170,9 +170,10 @@ export const TrialWrapper: React.FC<{ children: React.ReactNode }> = ({ children
 
     const formatTime = (ms: number) => {
         const totalSeconds = Math.floor(ms / 1000);
-        const minutes = Math.floor(totalSeconds / 60);
+        const hours = Math.floor(totalSeconds / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
         const seconds = totalSeconds % 60;
-        return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
     };
     
     // If in dev mode, bypass all trial logic and render the app directly.
