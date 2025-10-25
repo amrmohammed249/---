@@ -1,3 +1,4 @@
+
 import React, { useState, useContext } from 'react';
 import { useNavigate, Navigate } from 'react-router-dom';
 import { DataContext } from '../../context/DataContext';
@@ -30,7 +31,7 @@ const Login: React.FC = () => {
           تسجيل الدخول
         </h1>
         <p className="text-center text-gray-500 dark:text-gray-400">
-            مرحباً بك في نظام ERP المحاسبي
+            مرحباً بك في نظام Amr Ghobashi المحاسبي
         </p>
 
         <form onSubmit={handleLogin} className="space-y-6">
