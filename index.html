@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>نظام محاسبي متكامل</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <style>
+      :root {
+        --bg: #F7FAFC;
+        --panel: #FFFFFF;
+        --accent: #1F8EF1;
+        --accent-2: #10B981;
+        --text: #1F2937;
+        --muted: #6B7280;
+        --danger: #EF4444;
+        --warning: #F59E0B;
+        --radius: 8px;
+        --shadow: 0 6px 18px rgba(15, 23, 42, 0.06);
+      }
+      body {
+        font-family: 'Cairo', sans-serif;
+        background-color: var(--bg);
+      }
+      .dark body {
+        background-color: #0d1117;
+      }
+      @media print {
+        body * {
+          visibility: hidden;
+        }
+        #printable-invoice, #printable-invoice *,
+        #printable-report, #printable-report * {
+          visibility: visible;
+        }
+        #printable-invoice, #printable-report {
+          position: absolute;
+          left: 0;
+          top: 0;
+          width: 100%;
+          margin: 0;
+          padding: 1rem;
+          box-shadow: none;
+          border: none;
+        }
+        .no-print {
+          display: none !important;
+        }
+      }
+    </style>
+  <script type="importmap">
+{
+  "imports": {
+    "recharts": "https://aistudiocdn.com/recharts@^3.2.1",
+    "react-dom/": "https://aistudiocdn.com/react-dom@^19.2.0/",
+    "react-router-dom": "https://aistudiocdn.com/react-router-dom@^7.9.3",
+    "react/": "https://aistudiocdn.com/react@^19.2.0/",
+    "react": "https://aistudiocdn.com/react@^19.2.0",
+    "recharts/": "https://aistudiocdn.com/recharts@^3.2.1/"
+  }
+}
+</script>
+</head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/index.tsx"></script>
+  </body>
+</html>
